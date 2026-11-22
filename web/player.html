@@ -1,0 +1,256 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>GLIMMER STATION — Animated Short</title>
+<style>
+  :root {
+    --bg: #0b0e1a;
+    --panel: #12172a;
+    --accent: #ffd678;
+    --text: #e8ecf8;
+    --muted: #8f9ab8;
+  }
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body {
+    background: radial-gradient(ellipse at 50% 0%, #171d36 0%, var(--bg) 60%);
+    color: var(--text);
+    font-family: 'Segoe UI', system-ui, sans-serif;
+    min-height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 24px;
+  }
+  .stage { width: 100%; max-width: 560px; }
+  h1 {
+    text-align: center;
+    color: var(--accent);
+    letter-spacing: .35em;
+    font-weight: 700;
+    margin-bottom: 4px;
+  }
+  .sub {
+    text-align: center;
+    color: var(--muted);
+    font-size: 14px;
+    margin-bottom: 18px;
+  }
+  .poster {
+    position: relative;
+    background: #000;
+    border-radius: 18px;
+    overflow: hidden;
+    box-shadow: 0 20px 60px rgba(0,0,0,.6);
+    aspect-ratio: 9 / 16;
+    max-height: 78vh;
+    margin: 0 auto;
+  }
+  video {
+    width: 100%; height: 100%;
+    display: block;
+    object-fit: contain;
+    background: #000;
+  }
+  .controls {
+    background: var(--panel);
+    border-radius: 14px;
+    padding: 14px 16px;
+    margin-top: 14px;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+  }
+  .row { display: flex; align-items: center; gap: 12px; }
+  button.icon {
+    background: var(--accent);
+    border: none;
+    color: #1a1500;
+    width: 44px; height: 44px;
+    border-radius: 50%;
+    font-size: 17px;
+    cursor: pointer;
+    flex: none;
+    transition: transform .12s;
+  }
+  button.icon:hover { transform: scale(1.08); }
+  input[type=range] {
+    -webkit-appearance: none;
+    appearance: none;
+    flex: 1;
+    height: 6px;
+    border-radius: 3px;
+    background: #2a3350;
+    outline: none;
+    cursor: pointer;
+  }
+  input[type=range]::-webkit-slider-thumb {
+    -webkit-appearance: none;
+    width: 16px; height: 16px;
+    border-radius: 50%;
+    background: var(--accent);
+    cursor: pointer;
+  }
+  input[type=range]::-moz-range-thumb {
+    width: 16px; height: 16px;
+    border: none;
+    border-radius: 50%;
+    background: var(--accent);
+    cursor: pointer;
+  }
+  #seek { flex: 1; }
+  #vol { width: 90px; flex: none; }
+  .time { font-variant-numeric: tabular-nums; font-size: 13px; color: var(--muted); flex: none; min-width: 92px; text-align: center; }
+  .lower { display: flex; align-items: center; gap: 12px; }
+  .lower .icon.full { width: 38px; height: 38px; font-size: 14px; background: #232c4a; color: var(--text); }
+  #download {
+    margin-left: auto;
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    background: linear-gradient(135deg, #ffd678, #ffab52);
+    color: #241a00;
+    font-weight: 700;
+    text-decoration: none;
+    padding: 11px 20px;
+    border-radius: 999px;
+    font-size: 14px;
+    transition: transform .12s, box-shadow .12s;
+  }
+  #download:hover { transform: translateY(-1px); box-shadow: 0 8px 20px rgba(255, 190, 90, .35); }
+  #status {
+    font-size: 12px;
+    color: var(--muted);
+    text-align: center;
+    margin-top: 10px;
+  }
+</style>
+</head>
+<body>
+<div class="stage">
+  <h1>GLIMMER STATION</h1>
+  <div class="sub">a tiny night shift among stars &middot; 48s &middot; 1080&times;1920 &middot; 30fps &middot; H.264/AAC</div>
+
+  <div class="poster">
+    <video id="vid" src="final_animation_1080x1920.mp4" preload="metadata" playsinline></video>
+  </div>
+
+  <div class="controls">
+    <div class="row">
+      <button class="icon" id="play" aria-label="Play/Pause">&#9658;</button>
+      <input type="range" id="seek" min="0" max="1000" value="0" step="1">
+      <span class="time" id="time">0:00 / 0:48</span>
+    </div>
+    <div class="lower">
+      <button class="icon" id="mute" aria-label="Mute">&#128266;</button>
+      <input type="range" id="vol" min="0" max="100" value="100">
+      <a id="download" href="final_animation_1080x1920.mp4" download="glimmer_station_1080x1920.mp4">&#11015;&#65039; Download MP4</a>
+    </div>
+  </div>
+  <div id="status">Click Download to save the full high-definition MP4 with synchronized audio.</div>
+</div>
+
+<script>
+(function () {
+  const vid = document.getElementById('vid');
+  const play = document.getElementById('play');
+  const mute = document.getElementById('mute');
+  const seek = document.getElementById('seek');
+  const vol = document.getElementById('vol');
+  const time = document.getElementById('time');
+  const status = document.getElementById('status');
+  const poster = document.querySelector('.poster');
+  let scrubbing = false;
+
+  function fmt(s) {
+    if (!isFinite(s)) return '0:00';
+    const m = Math.floor(s / 60);
+    const sec = Math.floor(s % 60);
+    return m + ':' + String(sec).padStart(2, '0');
+  }
+
+  function updateUI() {
+    const d = vid.duration || 48;
+    if (!scrubbing) seek.value = d ? (vid.currentTime / d) * 1000 : 0;
+    time.textContent = fmt(vid.currentTime) + ' / ' + fmt(d);
+    play.innerHTML = vid.paused ? '&#9658;' : '&#10073;&#10073;';
+    mute.innerHTML = (vid.muted || vid.volume === 0) ? '&#128263;' : '&#128266;';
+  }
+
+  play.addEventListener('click', () => {
+    if (vid.paused) {
+      const p = vid.play();
+      if (p) p.catch(() => { status.textContent = 'Autoplay/play blocked — click the video itself once to allow sound.'; });
+    } else {
+      vid.pause();
+    }
+    updateUI();
+  });
+  vid.addEventListener('click', () => {
+    if (vid.paused) {
+      const p = vid.play();
+      if (p) p.catch(() => {});
+    } else vid.pause();
+    updateUI();
+  });
+  vid.addEventListener('ended', updateUI);
+  vid.addEventListener('timeupdate', updateUI);
+  vid.addEventListener('loadedmetadata', updateUI);
+
+  seek.addEventListener('input', () => {
+    scrubbing = true;
+    const d = vid.duration || 48;
+    vid.currentTime = (seek.value / 1000) * d;
+  });
+  seek.addEventListener('change', () => { scrubbing = false; });
+
+  vid.addEventListener('volumechange', updateUI);
+  vid.addEventListener('error', () => {
+    status.innerHTML = 'Video file not found. Run: <code>python3 -m http.server 8000</code> in the <b>web</b> folder (with the MP4 present), then open <code>http://localhost:8000/player.html</code>';
+  });
+
+  vol.addEventListener('input', () => {
+    vid.volume = vol.value / 100;
+    vid.muted = vol.value == 0;
+  });
+  mute.addEventListener('click', () => { vid.muted = !vid.muted; });
+
+  document.getElementById('download').addEventListener('click', function (e) {
+    const link = document.createElement('a');
+    link.href = vid.currentSrc || vid.src;
+    link.download = 'glimmer_station_1080x1920.mp4';
+    link.rel = 'noopener';
+    document.body.appendChild(link);
+    link.click();
+    setTimeout(() => link.remove(), 3000);
+    status.textContent = 'Download started — check your browser downloads.';
+  });
+
+  document.addEventListener('keydown', (e) => {
+    if (e.code === 'Space' && document.activeElement !== document.body) {
+      if (["INPUT","BUTTON","A"].includes(document.activeElement.tagName)) return;
+    }
+    if (e.code === 'Space') { e.preventDefault(); play.click(); }
+    if (e.code === 'ArrowRight') vid.currentTime = Math.min(vid.duration || 0, vid.currentTime + 2);
+    if (e.code === 'ArrowLeft') vid.currentTime = Math.max(0, vid.currentTime - 2);
+  });
+
+  function fullscreen() {
+    if (document.fullscreenElement) { document.exitFullscreen(); return; }
+    const el = poster.querySelector('video') ? poster : poster;
+    (el.requestFullscreen || el.webkitRequestFullscreen || function(){}).call(el);
+  }
+  const fullBtn = document.createElement('button');
+  fullBtn.className = 'icon full';
+  fullBtn.innerHTML = '&#9974;';
+  fullBtn.title = 'Fullscreen';
+  fullBtn.setAttribute('aria-label', 'Fullscreen');
+  fullBtn.addEventListener('click', fullscreen);
+  document.querySelector('.lower').insertBefore(fullBtn, document.getElementById('download'));
+
+  updateUI();
+})();
+</script>
+</body>
+</html>

@@ -1,0 +1,62 @@
+{
+ "pip_item.wav": [
+  "pip",
+  2.061,
+  "Item received!"
+ ],
+ "pip_egg.wav": [
+  "pip",
+  2.897,
+  "One lost mystery egg."
+ ],
+ "pip_notegg.wav": [
+  "pip",
+  2.472,
+  "You are not an egg."
+ ],
+ "pip_whoa.wav": [
+  "pip",
+  1.693,
+  "Whoa."
+ ],
+ "scrap_unfiled.wav": [
+  "scrap",
+  1.17,
+  "Unfiled asset detected."
+ ],
+ "pip_uhoh.wav": [
+  "pip",
+  1.523,
+  "Uh oh."
+ ],
+ "scrap_file.wav": [
+  "scrap",
+  0.81,
+  "File everything."
+ ],
+ "pip_return.wav": [
+  "pip",
+  2.812,
+  "I will return you myself!"
+ ],
+ "pip_stamps.wav": [
+  "pip",
+  2.203,
+  "Return to sender!"
+ ],
+ "scrap_error.wav": [
+  "scrap",
+  0.609,
+  "Error. Error."
+ ],
+ "pip_bye.wav": [
+  "pip",
+  3.449,
+  "Goodbye, little star."
+ ],
+ "pip_comeon.wav": [
+  "pip",
+  2.727,
+  "Oh! Come on!"
+ ]
+}
